@@ -1,0 +1,319 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<!-- 
+	******** Haluatko insinööriksi? - mobiilisovellus ********
+	By: Jarmo Seppälä, Teemu Suvinen, Joni Oksanen
+	
+	******** Sovelluksen kuvaus ********
+	Pelin kysymysten aiheet liittyvät pitkälti matemaattis-luonnontieteellisiin ongelmiin, mitä aikaisemmilla
+	mediatekniikan kursseilla on käyty läpi. Pelaaja voi arvailla niitä samalla tavalla kuin oikeassa kokeessakin. 
+	Jos (ja kun) vastaat oikein – peli jatkuu. Jos vastaat väärin – peli loppuu osaltasi siihen!
+	
+	******** Yleiskuvaus toiminnallisuudesta ********
+	Index.html:n wrapper diviin haetaan AJAX:lla kysymyksiä, jotka sekoitusfunktio arpoo sattumanvaraisessa järjestyksessä.
+	Jos käyttäjä vastaa väärin kysymykseen, jQuery poistaa DOM:sta divit ja tekee nappulan, jolla palataan alkuun.
+	Jos käyttäjä vastaa oikein kysymykseen, inkrementoidaan muuttujaa qnum yhdellä ja siirrytään seuraavaan kysymykseen.
+	Kun qnum on 7 (eli kaikki kysymykset on käyty läpi), peli loppuu.
+-->
+
+	<meta charset="UTF-8" />
+	<link href="style.css" type="text/css" rel="stylesheet" />
+	<link href='http://fonts.googleapis.com/css?family=Oswald:400,700|' rel='stylesheet' type='text/css'>
+	<title>Haluatko miljonääriksi?</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+</head>
+<body>
+	<h1>HALUATKO INSINÖÖRIKSI?</h1>
+		<div id="container">
+			<div id="plus">
+				<i>+10s</i>
+			</div>
+			<div id="kello">
+			10
+			</div>
+			<div id="fifty">
+				<i>50:50</i>
+			</div>
+		</div>
+		
+		<div id="wrapper">
+			<!-- teePyynto lähtee päävalikon ensimmäistä diviä klikatessa arpomaan sattumanvaraisen kysymyksen -->
+			<div id="aloitus" onclick="teePyynto(kysymykset[qnum],'wrapper'); return false;">
+					<p >Aloita peli tästä!</p>
+			</div>
+			<!-- Kaikki sisältö haetaan wrapper-diviin. -->
+		</div>
+
+<!-- jQuery-kirjastot -->	
+	
+<script src="jquery-2.1.1.min"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+
+<!-- ******** AJAX haku ******** -->
+<!-- Tässä käytetään javascriptin Ajax-käskyjä hakemaan sisältöä etusivulle. Sisältönä on kaikki kysymykset + endgame.html -->
+
+<script type="text/javascript">
+        var xmlhttp= null;
+		
+		// If-lause kysyy, onko objektia XMLHttpRequest mahdollista käyttää selaimessa.
+        if(window.XMLHttpRequest){
+            xmlhttp = new XMLHttpRequest();
+			
+		// XMLHttpRequest objekti ei ole tuettu kaikkein vanhimmilla web-selaimilla, joten koodi ei toimi oikein niillä. 
+		// Tässä tapauksessa else-lauseen sisällä oleva alert ilmoittaa, ettei XMLHttpRequest ole tuettu.
+        }else{
+            alert("Nyt on varmaa joku IE5 tai Netscape käytössä, mee pois");
+        }
+		
+		// qnum on numero, joka inkrementoi aina yhdellä kun käyttä on vastannut oikein kysymykseen.
+		var qnum = 0;
+		// teePyynto funktio on linkkien hakufunktio, jolla haetaan uusi sisältö
+		// sillä on kaksi parametriä, halutun sivun url ja varmistus latauksesta
+        function teePyynto(serverPage,iidee){
+
+            var obj = document.getElementById(iidee);
+			
+			//kun kaikki kysymykset on käyty läpi, haetaan rivillä 34 esiintyvä parametri "endgame.html".
+			if (qnum == 7) {
+				
+			//tämän jälkeen koodi yrittää avata yhteyttä palvelimelle käyttämällä open() käskyä.  
+			xmlhttp.open("GET",'kysymykset/endgame.html', true);
+			
+			//Onreadystatechangea käytetään tapahtumkäsittelijänä tapahtumille, mitkä käynnistyvät tilan vaihtuessa (kun readyState muuttuu).
+            xmlhttp.onreadystatechange = function(){
+			
+			//if-lauseella kysytään, jos readyState-metodi palauttaa 4:n (eli valmistuneen kyselyn) ja status 200:n (eli "OK":n)...
+            if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+				
+			//...niin voidaan ladata serverin vastaus halutulta sivulta läpikulkeutuneen xmlhttp-objektimme "innerHTML" elementtiin, kun pyyntö on lähetetty. 
+			//ResponseText-metodi vastaanottaa vastauksen string-arvona.
+            obj.innerHTML = xmlhttp.responseText;
+				
+            }
+			
+			// Kun pelin loppuun on päästy, pysäytetään kello lopullisesti ja tehdään hattuanimaatio.
+            reset();
+			hattutemppu();
+            }
+			
+			}else{ //tämä else haara toimii samalla tavalla kuin ylempänä selitetty if-haara, paitsi tämä jatkaa kysymysten hakemista mikäli niitä ei ole kaikkia käyty läpi. 
+			xmlhttp.open("GET",serverPage, true);
+            xmlhttp.onreadystatechange = function(){
+                if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+                obj.innerHTML = xmlhttp.responseText;
+                }
+            }
+			}
+            xmlhttp.send();
+			
+			//jokaisen kysymyksen jälkeen inkrementoidaan yhdellä. Loppupeleissä päästään seitsemänteen kysymykseen, ja tätä kautta endgame.html:ään.
+			qnum++;
+        }
+</script>
+
+<!-- ******** Funktiot ja toiminnot ********-->
+<!-- Täällä määritellään pelin rakenne ja kaikki pelin eri toiminnot. -->
+
+<script>
+// Fisher-Yates - sekoitusfunktio. Sekoittaa joka kerralla kysymykset ja estää sen, ettei kahta samaa koskaan kysytä.
+// Toimii niin, että "pakasta" nostetaan aina yksi string pois ja laitetaan se sivuun. Näin saadaan loppupeleissä inkrementaalisesti rakennettua uusi pakka.
+// Skaalautuu eri tyyppisiin arrayihin erittäin hyvin. http://bost.ocks.org/mike/shuffle/
+function shuffle(array) {
+var l = array.length;
+	while(l) {
+		i = Math.floor(Math.random() * l--);
+		t = array[l];
+		array[l] = array[i];
+		array[i] = t;
+		}
+	return array;
+}
+
+// kaikki kysymykset esitellään tässä arrayssa.
+var kysymykset = ['kysymykset/kysymys1.html', 
+				  'kysymykset/kysymys2.html', 
+				  'kysymykset/kysymys3.html', 
+				  'kysymykset/kysymys4.html', 
+				  'kysymykset/kysymys5.html', 
+				  'kysymykset/kysymys6.html', 
+				  'kysymykset/kysymys7.html'];
+
+// Fisher-Yates - "shuffle" funktiota kutsutaan "kysymykset"-arrayhin. Ja näin pakka on sekaisin!
+window.onload = shuffle(kysymykset);
+
+// oikea vaihtoehto valittu = toistetaan äänitiedosto. Correct() funktiot löytyvät jokaisen kysymys.html:n oikean vastauksen onClick eventistä.
+function correct(){
+	if(qnum==8){
+		var audio = $("#victory")[0];	// Kun kysymykset on käyty loppuun, soitetaan voittoisa äänitiedosto.
+					audio.play();
+	}else
+		var audio = $("#correct")[0];	// Jos kysymyksiä on vielä jäljellä, oikean vastauksen äänitiedosto pysyy "correctina"
+					audio.play();
+	};
+
+
+// Jokaisen kysymys.html:n väärien vastausten p-tageihin on liitetty endQuiz() funktio, joka ajetaan tässä.
+// Tarkoitus: lopettaa peli jos missä tahansa kysymyksessä vastataan väärin.
+function endQuiz() {
+		$( ".vaihtoehdot" ).hide("bounce", {times: 3},450);	//Jos (ja kun) käyttäjä on valinnut väärin, kysymysdivit poistetaan "bounce" -efektin saattelemana.
+		$( ".kysymys" ).hide("bounce", {times: 3},450);
+		var audio = $("#wrong")[0];	//Lisäksi toistetaan "wrong.mp3" äänitiedosto.
+		audio.play();
+
+		//Tässä funktiossa luodaan uusi div, joka ilmoittaa väärästä vastauksesta ja tarjoaa linkin takaisin pelin alkusivulle.
+		//Uusi div ilmestyy 0,8 sekunnin kuluttua klikkauksesta.
+		 setTimeout(function() {
+			$("#wrapper").append($('<div/>')	// luodaan uusi div
+						.attr("id", "tryagain")
+						.text("Väärin! Palaa alkuun.")
+			);
+			
+			$('#tryagain').click(function(){
+				location.reload(); //ladataan sivu uudelleen uutta peliä varten
+			});
+		}, 800);
+		
+		reset(); //pysäytetään kello
+}
+
+// TimeOut()-funktio toimii samoin kuin endQuiz. Kun käyttäjä on vitkastellut valinnan edessä 10 sekuntia, divit poistetaan. 
+function TimeOut() {
+		$( ".vaihtoehdot" ).hide("bounce", {times: 3},450);
+		$( ".kysymys" ).hide("bounce", {times: 3},450);
+		var audio = $("#wrong")[0];	//Lisäksi toistetaan "wrong.mp3" äänitiedosto.
+		audio.play();
+
+		 setTimeout(function() {
+			$("#wrapper").append($('<div/>')
+						.attr("id", "tryagain")
+						.text("Aika loppui! Palaa alkuun.")
+			);
+			
+			$('#tryagain').click(function(){
+				location.reload(); //lataa sivun uudelleen
+			});
+		}, 800);
+		
+		reset();	//kello pysähtyy
+}
+
+// Määritellään kelloa varten muuttujat 'countdown' ja 'time'
+var countdown;
+var time;
+
+function init() {	// luodaan funktio init(), johon sijoitetaan: 
+    time = 11;		// kysymyksen vastaamiseen annettu aika,
+    reset();		// funktio joka myöhemmin määritetään pysäyttämään aikalaskuri ja
+    trigger();		// funktio jolla aika saadaan käyntiin ja vähenemään
+}
+
+function trigger() {
+
+    if(time > 0) {	// kun aikaa on enemmän kuin 0
+        time--;		// vähennetään 1...
+        document.getElementById('kello').innerHTML = time;
+        if(time > 0) {	
+            countdown = setTimeout('trigger()', 1000); //...sekunnin välein
+        }
+    }
+	if( time == '00'){ 
+	TimeOut();			// Kun aika loppuu, kutsutaan TimeOut()-funktiota.
+	}
+	
+	//Kellon värejä vaihdellaan kun kello menee alle 5 sekunnin.
+	if (time <= '04'){
+	$('#kello').css('color', '#f8a716');
+		if (time <= '02'){
+		$('#kello').css('color', '#9e004a');
+		}
+	}else{
+		$('#kello').css('color', '#fff');
+	}
+}
+
+// tällä funktiolla pysäytetään kello
+function reset() {
+ clearTimeout(countdown);
+}
+
+//Plus 10s - funktio. Tätä käytetään alempana Plus 10s-oljenkorren click eventissä.
+function plus10(){
+time = time + 10;
+reset();
+trigger();
+}
+
+$(document).ready(function(){
+		//Kello lähtee käyntiin. Klikattaessa "Aloita tästä!"-nappia laskurin funktio ajetaan.
+		$("#aloitus").click(function(){
+			init();
+		});
+		
+		//Oljenkorsi 50:50
+		//poistaa klikattaessa 2 väärää vastausta ja itsensä, jottei sitä toista kertaa voida käyttää
+		$('#fifty').click(function(){
+			$(this).fadeTo( "slow" , 0);
+			$('.false').hide( "pulsate",{ }, 750 );
+				var audio = $("#5050")[0];
+				audio.play();
+                	
+		});
+		
+		//Oljenkorsi +10s 
+		//antaa klikatessa 10 sekuntia lisäaikaa kysymyksen vastaamiseen
+		$('#plus').click(function(){
+			$(this).fadeTo( "slow" , 0);
+			plus10();
+			$('#kello').css('color', '#fff');
+			
+				var audio = $("#plus10")[0];
+				audio.play();    
+		});
+		
+		//vaihtoehtoa klikatessa kello resetoidaan ja aloitetaan laskeminen alusta
+		$('p').click(function(){
+			init();
+		});
+		
+});
+
+// tämä funktio animoi inssilakin esiintulon endgame.html:ssä. Stylesheetissä hatun leveys ja korkeus ovat molemmat 1px - tässä sitä lähdetään kasvattamaan.
+function hattutemppu(){		
+	if ( screen.width < 780 ){	// jos päätelaitteen näytön resoluution koko on alle 780px, näytetään pienempi hattu.
+		$("#hattu").delay(1000).animate({
+				"width": 252.5,
+				"height": 210.5,
+				"left": 50,
+				"top":  50
+		 }, 1200 );
+	 }else{
+		 $("#hattu").delay(1000).animate({
+				"width": 505,
+				"height": 421,
+				"left": 25,
+				"top":  25
+		 }, 1200 );
+	 }
+	 
+		// kun juuri ansaittua lakkia on tovi ihailtu, käyttäjä saa 5 sekunnin kuluttua vaihtoehdon pelata peliä uudelleen. 
+	$('#voitto').delay(5000).show(0); 	
+					
+	$('#voitto').click(function(){
+		location.reload(); //lataa sivun uudelleen
+	});
+		
+}
+</script>
+<div id="audio">
+<script>
+// Äänitiedostot haetaan Teemun palvelimelta.
+	$.get("http://users.metropolia.fi/~teemusuv/sounds/sounds.php"
+		, function(data){
+		$('#audio').html(data);
+		});
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,241 @@
+body{ background: #180d46; }
+
+@font-face {
+	font-family: CopperplateGothicStd-33BC;
+	src: url(CopperplateGothicStd-33BC.otf);
+}
+
+h1{
+	font-family: CopperplateGothicStd-33BC;
+	letter-spacing: 0.2em;
+	color: #fff;
+	font-size: 2em;
+	vertical-align: middle;
+	line-height: normal;
+	margin: 0 auto;
+	text-align: center;
+}
+
+b{
+	font-family: CopperplateGothicStd-33BC;
+	font-size: 2.5em;
+}
+
+p{font-family: 'Oswald', sans-serif;}
+
+span {color: #f8a716;}
+
+#hattu{
+	display: none;
+    width:1px;
+    height:1px;
+    left:1px;
+    top:1px;
+}
+
+#wrapper{
+	margin-left: auto;
+	margin-right: auto;
+	width: 95%;
+	text-align: center;
+}
+
+#container{
+	margin-left: auto;
+	margin-right: auto;
+	margin: 0 auto;
+	width: 100%;
+	margin-bottom: 7%;
+}
+
+.kysymys{
+	z-index: 1;
+	height: auto;
+	background: #000;
+	border: 2px solid #86a4ba;
+	border-radius: 10px;
+	color: #fff;
+}
+
+#aloitus{
+	z-index: 1;
+	height: auto;
+	background: #000;
+	border: 2px solid #86a4ba;
+	border-radius: 10px;
+	color: #fff;
+}
+
+
+#voitto{
+	height: auto;
+	background: #000;
+	border: 2px solid #86a4ba;
+	border-radius: 10px;
+	color: #fff;
+	font-family: 'Oswald', sans-serif;
+	height: 40px;
+	line-height: 40px;
+	
+}
+
+#tryagain{
+	height: auto;
+	background: #000;
+	border: 2px solid #86a4ba;
+	border-radius: 10px;
+	color: #fff;
+	font-family: 'Oswald', sans-serif;
+	height: 40px;
+	line-height: 40px;
+	
+}
+
+#tryagain:hover{ background: #333333; } 
+
+.kysymys:hover{ background: #333333; } 
+
+.vaihtoehdot p{
+	height: 35px;
+	line-height: 35px;
+	background: #000;
+	color: #fff;
+	border-radius: 10px;
+	border: 2px solid #86a4ba;
+}
+
+.vaihtoehdot p:hover{ background: #333333; }
+	
+.vaihtoehdot p:hover span{ color: #fff; }
+
+#plus{
+	float: left;
+	width: 85px;
+	height: 85px;
+	line-height: 85px;
+	border-radius: 400px;
+	background: #0d0726;
+	color: #fff;
+	font-family: CopperplateGothicStd-33BC;
+	font-size: 18pt;
+	font-weight: bold;
+	margin-top: 2%;
+	margin-left: 32%;
+	text-align: center;
+	border: 3px solid #86a4ba;
+	-moz-box-shadow: 0 0 30px #47e3ff;
+	-webkit-box-shadow: 0 0 30px #47e3ff;
+	box-shadow: 0 0 30px #47e3ff;
+	display:inline;
+}
+
+
+#kello{
+	width: 85px;
+	height: 85px;
+	line-height: 85px;
+	border-radius: 400px;
+	background: #0c0724;
+	color: #fff;
+	font-family: CopperplateGothicStd-33BC;
+	font-size: 18pt;
+	font-weight: bold;
+	text-align: center;
+	border: 3px solid #9e004a;
+	-moz-box-shadow: 0 0 30px #47e3ff;
+	-webkit-box-shadow: 0 0 30px #47e3ff;
+	box-shadow: 0 0 30px #47e3ff;
+	margin-top: 2%;
+	margin-left: 10%;
+	display:inline-block;
+}
+
+#fifty{
+	width: 85px;
+	height: 85px;
+	line-height: 85px;
+	border-radius: 400px;
+	background: #0d0726;
+	color: #fff;
+	font-family: CopperplateGothicStd-33BC;
+	font-size: 18pt;
+	font-weight: bold;
+	margin-top: 2%;
+	margin-left: 10%;
+	text-align: center;
+	border: 3px solid #86a4ba;
+	-moz-box-shadow: 0 0 30px #47e3ff;
+	-webkit-box-shadow: 0 0 30px #47e3ff;
+	box-shadow: 0 0 30px #47e3ff;
+	display:inline-block;
+}
+
+i{
+font-family: 'Oswald', sans-serif;
+font-size: 12px;
+color: #86a4ba;
+font-style: normal;
+}
+
+@media screen and (max-width: 780px) {
+	.kysymys{
+	padding: 0 5%;
+	}
+	#aloitus{
+	padding: 0 5%;
+	}
+	.vaihtoehdot p{
+	height: 40px;
+	line-height: 40px;
+	text-align: left;
+	padding: 0 8%;
+	margin: 2% 0;
+	}
+	
+	h1{
+	letter-spacing: 0;
+	font-size: 1.2em;
+	}
+	#plus{
+	margin-left: 20%;
+	}
+	#kello{
+	margin-left: 10%;
+	}
+	#fifty{
+	margin-left: 10%;
+	}
+	
+}
+
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) { 
+	#plus{
+	margin-left: 12%;
+	}
+	#kello{
+	margin-left: 12%;
+	}
+	#fifty{
+	margin-left: 12%;
+	}
+
+	#plus{
+	width: 45px;
+	height: 45px;
+	line-height: 45px;
+	}
+	
+	#kello{
+	width: 45px;
+	height: 45px;
+	line-height: 45px;
+	}
+	
+	#fifty{
+	width: 45px;
+	height: 45px;
+	line-height: 45px;
+	}
+}
